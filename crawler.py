@@ -22,11 +22,12 @@ class Parser:
         links = [urljoin(self.url, link.attrs['href']) for link in self.soup.find_all('a') if 'href' in link.attrs]
         return links
 
-    def get_words(self):
+    def get_content(self):
         text = self.soup.body.get_text()
+        return text
         # translate (which is faster than regex) is used to remove all punctuation
-        table = str.maketrans("", "", string.punctuation)
-        return text.translate(table).split()
+        # table = str.maketrans("", "", string.punctuation)
+        # return text.translate(table).split()
 
 class Frontier:
     def __init__(self, seed_urls):
@@ -58,6 +59,8 @@ class Crawler:
         self.webgraph_out = {}
         self.webgraph_in = defaultdict(list)
 
+        self.contents = []
+
         self._crawl_pages(seed_urls)
         self._generate_ingraph()
 
@@ -67,8 +70,11 @@ class Crawler:
         while front.has_next_page():
             next_url = front.get_next_page()
             p = Parser(Downloader.get_page(next_url), next_url)
+            
             links = p.get_links()
             front.add_pages(links)
+
+            self.contents.append((next_url, p.get_content()))
 
             self.webgraph_out[next_url] = tuple(links)
 

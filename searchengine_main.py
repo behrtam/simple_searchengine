@@ -1,11 +1,18 @@
 from crawler import Crawler
 from page_rank import PageRank
+from indexer import Indexer
 
 from urllib.parse import urljoin
 
 
 SEED_URL = 'http://mysql12.f4.htw-berlin.de/crawl/'
 SEED_PAGES = ('d01.html', 'd06.html', 'd08.html')
+
+STOP_WORDS = ['d01', 'd02', 'd03', 'd04', 'd05', 'd06', 'd07', 'd08',  
+'a', 'also', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'do'
+'for', 'have', 'is', 'in', 'it', 'of', 'or', 'see', 'so',
+'that', 'the', 'this', 'to', 'we']
+
 
 crawler = Crawler([urljoin(SEED_URL, page) for page in SEED_PAGES])
 
@@ -34,3 +41,7 @@ print("  d05 rank:  " + ("OK" if round(d05_rank, 4) == 0.1173 else "WRONG"))
 
 d02_rank = page_rank.get_rank('http://mysql12.f4.htw-berlin.de/crawl/d02.html')
 print("  d02 rank:  " + ("OK" if round(d02_rank, 4) == 0.1254 else "WRONG"))
+
+
+index = Indexer(crawler.contents, STOP_WORDS)
+index.build_index()
