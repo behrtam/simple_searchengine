@@ -19,6 +19,12 @@ class Indexer:
             words = [word.lower() for word in content.translate(table).split() if word.lower() not in self.stopwords]
             self.normalized_contents.append((url, words))
 
+    def documents_length(self):
+        doc_length = {}
+        for url, words in self.normalized_contents:
+            doc_length[url] = len(words)
+        return doc_length
+
     def calculate_frequency_distribution(self, normalized_content):
         hist = defaultdict(int)
 

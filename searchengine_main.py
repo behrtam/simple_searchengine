@@ -1,6 +1,7 @@
 from crawler import Crawler
 from page_rank import PageRank
 from indexer import Indexer
+from scorer import Scorer
 
 from urllib.parse import urljoin
 
@@ -45,3 +46,9 @@ print("  d02 rank:  " + ("OK" if round(d02_rank, 4) == 0.1254 else "WRONG"))
 
 index = Indexer(crawler.contents, STOP_WORDS)
 index.build_index()
+
+print(index.documents_length())
+
+scorer = Scorer(index.term_frequency, index.documents_length(), len(crawler.webgraph_out), STOP_WORDS)
+for doc, score in scorer.calculate_scores('tokens').items():
+	print(doc, score)
