@@ -4,45 +4,37 @@ from math import log10, sqrt
 from collections import defaultdict
 
 #TODO: refactor to utils class
-def normalize(text, stopwords):
+def normalized_word_frequency(text, stopwords):
     table = str.maketrans("", "", string.punctuation)
-    return [word.lower() for word in text.translate(table).split() if word.lower() not in stopwords]
+    hist = defaultdict(int)
+    for term in [word.lower() for word in text.translate(table).split() if word.lower() not in stopwords]:
+        hist[term] += 1
+    return hist
 
 
 class Scorer:
-	def __init__(self, term_frequency, documents_length, document_count, stopwords):
-		self.term_frequency = term_frequency
-		self.documents_length = documents_length
-		self.document_count = document_count
-		self.stopwords = stopwords
+    def __init__(self, index):
+        self.index = index
 
-	def calculate_scores(self, query):
-		scores = defaultdict(int)
+    def calculate_scores(self, query):
+        scores = defaultdict(int)
+        query_terms = normalized_word_frequency(query, self.index.stopwords)
+        query_length = 0
 
-		query_terms = normalize(query, self.stopwords)
+        for term in query_terms:
+            postings = self.index.term_weight[term]
 
-		for term in query_terms:
-			postings = self.term_frequency[term]
+            # we assume that every term in a query only occures once
+            # so the tf part would look like this: (1 + log10(1)) => 1
+            tf_idf_tq = log10(len(self.index.documents_length) / self.index.document_frequency[term]);
 
-			for document, term_frequency in postings:
+            query_length += (tf_idf_tq ** 2)
 
-				# Term Frequency and Inverse Document Frequency of Term in Document
-				tf_idf_td = (1 + log10(term_frequency)) * log10(self.document_count / len(postings))
+            for document, tf_idf_td in postings:
+                scores[document] += (tf_idf_tq * tf_idf_td)
 
-				# Term Frequency and Inverse Document Frequency of Term in Query
-				tf_idf_tq = log10(self.document_count / len(postings))
+        # length normalization
+        for doc in scores:
+            scores[doc] = scores[doc] / (self.index.documents_length[doc] * sqrt(query_length))
 
-				scores[document] += tf_idf_td * tf_idf_tq
-
-		norm_q = len(query_terms)
-
-		cos_score = {}
-
-		for doc, score in scores.items():
-			norm_d = self.documents_length[doc]
-
-			cos_score[doc] = (score / (norm_q * norm_d))
-
-
-		return cos_score 
-
+        return scores
