@@ -22,10 +22,15 @@ class Scorer:
         query_length = 0
 
         for term in query_terms:
+
+            #TODO: how to correctly deal with query terms that don't accour in any document ??
+            if term not in self.index.term_weight:
+                continue
+
             postings = self.index.term_weight[term]
 
             # we assume that every term in a query only occures once
-            # so the tf part would look like this: (1 + log10(1)) => 1
+            # so the tf part would look like this: (1 + log10(1)) == 1
             tf_idf_tq = log10(len(self.index.documents_length) / self.index.document_frequency[term]);
 
             query_length += (tf_idf_tq ** 2)
@@ -34,7 +39,7 @@ class Scorer:
                 scores[document] += (tf_idf_tq * tf_idf_td)
 
         # length normalization
-        for doc in scores:
-            scores[doc] = scores[doc] / (self.index.documents_length[doc] * sqrt(query_length))
+        for document in scores:
+            scores[document] = scores[document] / (self.index.documents_length[document] * sqrt(query_length))
 
         return scores
