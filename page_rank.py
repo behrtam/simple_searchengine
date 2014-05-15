@@ -34,7 +34,7 @@ class PageRank:
     def get_rank(self, url):
         return None if not url in self.page_rank else self.page_rank[url]
 
-    def calculate_graph(self):
+    def build_graph(self):
         ''' Calculates the webgraph until the given delta threshold is met. '''
         self._init_step()
         run = True

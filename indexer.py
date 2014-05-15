@@ -39,6 +39,9 @@ class Indexer:
                 self.document_frequency[term] += 1
                 self.term_frequency[term].append((url, freq))
 
+        self.calculate_weight()
+        self.calculate_document_length()
+
     # cacluates dampend tf-idf weight for each term
     def calculate_weight(self):
         N = len(self.normalized_contents)

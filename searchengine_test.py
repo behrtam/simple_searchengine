@@ -34,7 +34,7 @@ print("  d08 outlinks:  " + ("OK" if len(d08_outlinks) == 0 else "WRONG"))
 
 
 page_rank = PageRank(crawler.webgraph_in, crawler.webgraph_out)
-page_rank.calculate_graph()
+page_rank.build_graph()
 
 print("\n# PageRank TEST")
 
@@ -50,8 +50,6 @@ print("  d02 rank:  " + ("OK" if round(d02_rank, 4) == 0.1254 else "WRONG"))
 
 index = Indexer(crawler.contents, STOP_WORDS)
 index.build_index()
-index.calculate_weight()
-index.calculate_document_length()
 
 print("\n# Indexer TEST [tf df]")
 
